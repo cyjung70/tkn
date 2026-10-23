@@ -1,0 +1,11 @@
+{"type":"permission-mode","permissionMode":"default","sessionId":"sess-0001"}
+{"type":"user","sessionId":"sess-0001","cwd":"D:/work/demo","timestamp":"2026-10-05T01:00:00.000Z","isSidechain":false,"message":{"role":"user","content":"List the files here"}}
+{"type":"assistant","sessionId":"sess-0001","cwd":"D:/work/demo","timestamp":"2026-10-05T01:00:05.000Z","message":{"id":"msg_1","role":"assistant","content":[{"type":"thinking","thinking":"hidden"}]}}
+{"type":"assistant","sessionId":"sess-0001","cwd":"D:/work/demo","timestamp":"2026-10-05T01:00:06.000Z","message":{"id":"msg_1","role":"assistant","content":[{"type":"tool_use","id":"t1","name":"Bash","input":{"command":"ls -la","description":"List files"}}]}}
+{"type":"user","sessionId":"sess-0001","cwd":"D:/work/demo","timestamp":"2026-10-05T01:00:07.000Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"SECRET OUTPUT"}]}}
+{"type":"assistant","sessionId":"sess-0001","cwd":"D:/work/demo","timestamp":"2026-10-05T01:00:09.000Z","message":{"id":"msg_1","role":"assistant","content":[{"type":"text","text":"There are two files."}]}}
+{"type":"user","sessionId":"sess-0001","isMeta":true,"timestamp":"2026-10-05T01:00:10.000Z","message":{"role":"user","content":"META CONTENT"}}
+{"type":"user","sessionId":"sess-0001","timestamp":"2026-10-05T01:00:11.000Z","message":{"role":"user","content":"<command-name>/clear</command-name>"}}
+{"type":"assistant","sessionId":"sess-0001","isSidechain":true,"timestamp":"2026-10-05T01:00:12.000Z","message":{"role":"assistant","content":[{"type":"text","text":"SIDECHAIN"}]}}
+this line is not json
+{"type":"ai-title","aiTitle":"List demo files","sessionId":"sess-0001"}

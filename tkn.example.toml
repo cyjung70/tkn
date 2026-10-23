@@ -1,0 +1,24 @@
+# Copy this file to tkn.toml and adjust it. tkn.toml is gitignored.
+
+# Absolute path to the Obsidian vault.
+vault_path = "D:/Obsidian/MyVault"
+
+# Folder inside the vault that holds imported conversations.
+root_folder = "01_원본"
+
+# IANA time zone used for folder/file dates and frontmatter timestamps.
+# Leave empty to use the system local time zone.
+timezone = "Asia/Seoul"
+
+# Folder name per tool, inside root_folder.
+[folders]
+chatgpt = "ChatGPT"
+claude = "Claude"
+claude_code = "Claude Code"
+codex = "Codex"
+
+# Session log locations. Leave empty to use the defaults
+# (~/.claude/projects and ~/.codex/sessions).
+[sources]
+claude_code_dir = ""
+codex_dir = ""

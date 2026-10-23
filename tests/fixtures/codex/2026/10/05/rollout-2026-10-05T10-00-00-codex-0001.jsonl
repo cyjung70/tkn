@@ -1,0 +1,10 @@
+{"timestamp":"2026-10-05T01:00:00.000Z","type":"session_meta","payload":{"id":"codex-0001","timestamp":"2026-10-05T01:00:00.000Z","cwd":"D:/work/demo","base_instructions":{"text":"SYSTEM"}}}
+{"timestamp":"2026-10-05T01:00:01.000Z","type":"response_item","payload":{"type":"message","role":"developer","content":[{"type":"input_text","text":"DEVELOPER"}]}}
+{"timestamp":"2026-10-05T01:00:02.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<environment_context>\n<cwd>D:/work</cwd>\n</environment_context>"}]}}
+{"timestamp":"2026-10-05T01:00:03.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Run the tests please"}]}}
+{"timestamp":"2026-10-05T01:00:04.000Z","type":"response_item","payload":{"type":"function_call","name":"shell","arguments":"{\"command\":[\"pytest\",\"-q\"]}","call_id":"c1"}}
+{"timestamp":"2026-10-05T01:00:05.000Z","type":"response_item","payload":{"type":"function_call_output","call_id":"c1","output":"TOOL OUTPUT"}}
+{"timestamp":"2026-10-05T01:00:06.000Z","type":"response_item","payload":{"type":"reasoning","summary":[]}}
+{"timestamp":"2026-10-05T01:00:07.000Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"All tests passed."}]}}
+{"timestamp":"2026-10-05T01:00:08.000Z","type":"realtime_item","payload":{"type":"transcript_segment","role":"user","text":"DUPLICATE TRANSCRIPT"}}
+{"timestamp":"2026-10-05T01:00:09.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<realtime_delegation>\n<input>And check lint</input>\n<transcript_delta>DELTA</transcript_delta>\n</realtime_delegation>"}]}}

@@ -25,49 +25,67 @@ Supported tools:
 
 ## Status
 
-Early stage. There is no source code, dependency setup, or test suite yet. The structure and conventions below are **proposals**; update this file once they are actually implemented.
+v0.1 (conversation import) is implemented. Topic classification and updating changed notes are not yet implemented.
 
-## Intended Behavior
+## Commands
 
-1. **Import**: read each tool's export files / session logs and convert them into a common internal model (`Conversation`, `Message`)
-2. **Export**: write Markdown notes into per-tool folders in the vault
-3. **Classify**: assign topics based on conversation content and link them via tags, frontmatter, and topic index notes
-4. **Incremental sync**: identify already-imported conversations by ID, never create duplicates, and only update notes whose source changed
+```powershell
+python -m venv .venv; .venv\Scripts\pip install -e ".[dev]"   # setup (Python 3.11+)
+.venv\Scripts\python -m pytest                                  # tests
+tkn import chatgpt <export.zip|conversations.json> [--dry-run] [--since YYYY-MM-DD] [-v]
+tkn import claude  <export.zip|conversations.json>
+tkn import claude-code [dir]    # default from config, else ~/.claude/projects
+tkn import codex [dir]          # default from config, else ~/.codex/sessions
+```
 
-## Proposed Structure
+Config is read from `./tkn.toml` (gitignored; copy `tkn.example.toml`) or `--config`.
+
+## Behavior
+
+1. **Import** (`tkn/importers/`): each parser converts one tool's files into `Conversation`/`Message` (`tkn/models.py`). Malformed records are logged and skipped
+2. **Write** (`tkn/vault/`): one Markdown note per conversation
+3. **Dedup**: before writing, the vault's frontmatter is scanned for `(source, id)`. Existing conversations are always skipped, never overwritten (v0.1 does not update notes whose source changed)
+4. **Classify** (planned): topics via tags, frontmatter, and `Topics/<topic>.md` index notes
+
+## Structure
 
 ```
 tkn/
-  models.py          # Common data models (dataclasses): Conversation, Message, ...
-  importers/         # Per-tool parsers: chatgpt.py, claude.py, codex.py, claude_code.py
-  vault/             # Obsidian note rendering and file writing
-  classify/          # Topic classification logic
-  cli.py             # Command-line entry point
+  models.py          # Conversation, Message
+  config.py          # tkn.toml loading
+  importers/         # chatgpt.py, claude.py, claude_code.py, codex.py, _common.py
+  vault/             # naming.py (paths), render.py (Markdown), writer.py (index + write/skip)
+  cli.py             # `tkn` entry point
 tests/
-  fixtures/          # Minimal per-tool samples (anonymized only, never real conversations)
+  fixtures/          # Hand-written synthetic samples only, never real conversations
 ```
 
-To add a new tool, add one parser under `importers/` that returns only the common model, so the export and classify stages stay tool-agnostic.
+To add a new tool, add one parser under `importers/` that returns only the common model, so the vault and classify stages stay tool-agnostic.
 
-## Obsidian Vault Conventions (proposed)
+## Importer Notes
 
-- Path: `<vault>/<tool>/<YYYY-MM-DD> <title>.md` (e.g. `ChatGPT/`, `Claude/`, `Codex/`, `Claude Code/`)
-- Strip or replace characters forbidden in Windows/Obsidian file names (`\ / : * ? " < > | # ^ [ ]`) and cap the length
-- Example YAML frontmatter:
+- ChatGPT: follow the `current_node` -> root path; assistant messages with `recipient != "all"` are tool calls
+- Claude Code: skip `isSidechain`, `isMeta`, `subagents/` files, `thinking`, `tool_result`, and `<command-...>` lines. Title from the `ai-title` entry
+- Codex: use `response_item` only (`realtime_item` transcript segments duplicate it). Skip injected `<environment_context>`-style user messages; unwrap `<realtime_delegation><input>`
+- Tool calls are rendered as a one-line summary (``> 🔧 `Bash: git status` ``); tool output is never written
+
+## Obsidian Vault Conventions
+
+- Path: `<vault>/<root_folder>/<Tool>/<YYYY-MM>/<YYYY-MM-DD>_<title>.md`. Dates use the configured time zone
+- Titles: characters `\ / : * ? " < > | # ^ [ ]` and control chars replaced, max 80 chars. Name collisions get ` (<id prefix>)`
+- Frontmatter values are JSON-quoted strings (valid YAML):
   ```yaml
   ---
-  source: chatgpt
-  conversation_id: <original ID>
-  title: ...
-  created: 2026-10-23T08:50:00+09:00
-  updated: ...
-  topics: [python, obsidian]
-  tags: [tkn/chatgpt, topic/python]
+  source: "chatgpt"        # chatgpt | claude | claude-code | codex
+  id: "<original ID>"      # deduplication key together with source
+  title: "..."
+  created: "2026-10-23T08:50:00+09:00"
+  updated: "..."           # when known
+  project: "D:\dev\tkn"  # Claude Code / Codex working directory
   ---
   ```
-- `conversation_id` is the deduplication key. File names may change, so never use them to identify a conversation.
-- Never overwrite content the user edited in the vault (e.g. separate generated and user-owned sections, or confirm before overwriting).
-- Topic classification links notes to `Topics/<topic>.md` index notes via `[[wikilinks]]`.
+- `(source, id)` identifies a conversation. File names may change, so never use them for identification.
+- Never overwrite content the user edited in the vault.
 
 ## Development Guidelines
 

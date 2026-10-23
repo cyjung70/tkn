@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tkn"
+version = "0.1.0"
+description = "Import AI conversation histories into an Obsidian vault"
+readme = "README.md"
+license = "LGPL-3.0-or-later"
+requires-python = ">=3.11"
+dependencies = [
+    # Windows has no system IANA time zone database; zoneinfo needs this.
+    "tzdata; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+tkn = "tkn.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tkn*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
