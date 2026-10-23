@@ -1,0 +1,20 @@
+[
+  {
+    "uuid": "claude-conv-0001",
+    "name": "",
+    "created_at": "2026-10-01T23:30:00.000000Z",
+    "updated_at": "2026-10-01T23:35:00.000000Z",
+    "chat_messages": [
+      {"uuid": "m1", "sender": "human", "created_at": "2026-10-01T23:30:00Z",
+       "text": "Explain recursion briefly", "content": [{"type": "text", "text": "Explain recursion briefly"}],
+       "attachments": [{"file_name": "notes.txt"}], "files": []},
+      {"uuid": "m2", "sender": "assistant", "created_at": "2026-10-01T23:31:00Z",
+       "content": [
+         {"type": "thinking", "thinking": "hidden"},
+         {"type": "tool_use", "name": "web_search", "input": {"query": "recursion"}},
+         {"type": "tool_result", "content": []},
+         {"type": "text", "text": "A function that calls itself."}
+       ]}
+    ]
+  }
+]

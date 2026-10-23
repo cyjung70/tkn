@@ -218,3 +218,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- TKN ---
+# IDE settings are personal; do not commit
+.idea/
+
+# Local config (contains the vault path)
+tkn.toml
+
+# Personal data: AI tool exports, session logs, and vault output must never be committed
+*.zip
+conversations.json
+*.jsonl
+!tests/fixtures/**/*.jsonl
+/exports/
+/vault/
+/raw/
+/output/
