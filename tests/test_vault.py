@@ -29,6 +29,7 @@ def test_sanitize_title():
     assert sanitize_title("///") == "Untitled"
     assert sanitize_title("CON") == "_CON"
     assert len(sanitize_title("x" * 200)) == 80
+    assert sanitize_title("odd \U0005ffff\ufdd0 title \ufffe") == "odd title"
 
 
 def test_note_path_uses_local_month(config: Config):

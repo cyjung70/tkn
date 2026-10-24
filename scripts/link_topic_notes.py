@@ -107,7 +107,8 @@ def add_links(text: str, lines: list[str]) -> str | None:
         insert_at -= 1
     if insert_at == start + 1:
         lines = ["", *lines]
-    trailer = [""] if end < len(body) else []
+    # Keep one blank line before a following heading; existing blank lines are reused.
+    trailer = [""] if insert_at < len(body) and body[insert_at].strip() else []
     new_body = body[:insert_at] + lines + trailer + body[insert_at:]
     return "\n".join(new_body).rstrip("\n") + "\n"
 

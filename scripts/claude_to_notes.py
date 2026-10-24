@@ -14,25 +14,24 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
-from tkn.importers.claude import iter_conversations
+from tkn.importers import claude
 from tkn.models import Conversation
 from tkn.vault.naming import sanitize_title
 
 DEFAULT_PATH = Path("raw/claude/conversations.json")
 DEFAULT_OUT = Path("output/claude")
 
-_ROLE_HEADINGS = {"user": "User", "assistant": "Claude"}
-
 _UUID_LINE = re.compile(r'^uuid:\s*"(.*)"\s*$')
 
 
-def render(conv: Conversation) -> str:
+def render(conv: Conversation, assistant: str = "Claude") -> str:
     # Values are JSON-encoded; a JSON string is a valid YAML scalar.
     fields = {
         "title": conv.title,
-        "source": "claude",
+        "source": conv.source,
         "created": conv.created.astimezone().isoformat(timespec="seconds"),
         "uuid": conv.id,
     }
@@ -46,7 +45,7 @@ def render(conv: Conversation) -> str:
             lines += [f"> 🔧 `{message.text.replace('`', chr(39))}`", ""]
             continue
         if message.role != current_role:
-            heading = _ROLE_HEADINGS[message.role]
+            heading = assistant if message.role == "assistant" else "User"
             if message.timestamp:
                 heading += f" · {message.timestamp.astimezone():%Y-%m-%d %H:%M}"
             lines += [f"## {heading}", ""]
@@ -80,15 +79,23 @@ def target_path(out: Path, conv: Conversation) -> Path:
     return path
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("path", nargs="?", type=Path, default=DEFAULT_PATH, help=f"default: {DEFAULT_PATH}")
-    parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help=f"output folder (default: {DEFAULT_OUT})")
+def convert(
+    argv: list[str] | None,
+    description: str,
+    iter_conversations: Callable[[Path], Iterator[Conversation]],
+    default_path: Path,
+    default_out: Path,
+    assistant: str,
+) -> int:
+    """Command-line entry shared by the per-tool note scripts."""
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("path", nargs="?", type=Path, default=default_path, help=f"default: {default_path}")
+    parser.add_argument("--out", type=Path, default=default_out, help=f"output folder (default: {default_out})")
     parser.add_argument("--all", action="store_true", help="convert every conversation, not just the latest")
     args = parser.parse_args(argv)
 
-    if not args.path.is_file():
-        print(f"File not found: {args.path}", file=sys.stderr)
+    if not args.path.exists():
+        print(f"Not found: {args.path}", file=sys.stderr)
         return 1
 
     parsed = list(iter_conversations(args.path))
@@ -112,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Name collision, skipped: {target}", file=sys.stderr)
             skipped += 1
             continue
-        target.write_text(render(conv), encoding="utf-8")
+        target.write_text(render(conv, assistant), encoding="utf-8")
         done.add(conv.id)
         written += 1
         if not args.all:
@@ -120,6 +127,10 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"Written: {written}, already present: {skipped}, without content: {empty if args.all else 0}")
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    return convert(argv, __doc__.splitlines()[0], claude.iter_conversations, DEFAULT_PATH, DEFAULT_OUT, "Claude")
 
 
 if __name__ == "__main__":

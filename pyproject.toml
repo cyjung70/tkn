@@ -25,3 +25,5 @@ include = ["tkn*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The topic scripts in scripts/ import each other by module name.
+pythonpath = ["scripts"]

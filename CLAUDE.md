@@ -16,7 +16,7 @@ Supported tools:
 
 | Tool | Expected input source | Format |
 |------|-----------------------|--------|
-| ChatGPT | `conversations.json` from the Settings → Data export ZIP | JSON. Messages are stored as a `mapping` tree (each node has `parent`/`children`); walk back from `current_node` to recover the main conversation path |
+| ChatGPT | `conversations.json`, or `conversations-000.json`, `-001.json`, ... in newer exports, from the Settings → Data export ZIP | JSON. Messages are stored as a `mapping` tree (each node has `parent`/`children`); walk back from `current_node` to recover the main conversation path |
 | Claude (claude.ai) | `conversations.json` from the Settings → Export data ZIP | JSON. Per-conversation `chat_messages` array (`sender`: `human`/`assistant`) |
 | Codex (CLI) | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | JSONL, one event per line |
 | Claude Code | `~/.claude/projects/<encoded-path>/<session-id>.jsonl` | JSONL, one message/event per line, linked via `parentUuid` |
@@ -32,7 +32,7 @@ v0.1 (conversation import) is implemented. Topic classification and updating cha
 ```powershell
 python -m venv .venv; .venv\Scripts\pip install -e ".[dev]"   # setup (Python 3.11+)
 .venv\Scripts\python -m pytest                                  # tests
-tkn import chatgpt <export.zip|conversations.json> [--dry-run] [--since YYYY-MM-DD] [-v]
+tkn import chatgpt <export.zip|export folder|conversations.json> [--dry-run] [--since YYYY-MM-DD] [-v]
 tkn import claude  <export.zip|conversations.json>
 tkn import claude-code [dir]    # default from config, else ~/.claude/projects
 tkn import codex [dir]          # default from config, else ~/.codex/sessions
