@@ -1,4 +1,4 @@
-# TKN — Tonabit Knowledge Nexus
+# TKN — TonaBIT Knowledge Nexus
 
 **Separate Sources, Connect Knowledge.**
 
