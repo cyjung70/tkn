@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+import pytest
 
 from tkn.importers import chatgpt, claude, claude_code, codex
 
@@ -32,6 +35,55 @@ def test_chatgpt_reads_from_zip(fixtures: Path, tmp_path: Path):
         zf.write(fixtures / "chatgpt_conversations.json", "conversations.json")
 
     assert [c.id for c in chatgpt.iter_conversations(archive)] == ["chatgpt-conv-0001"]
+
+
+def _write_shards(fixtures: Path, folder: Path) -> list[str]:
+    """Split the fixture into two shards like newer exports; return the expected ids in order."""
+    (conv,) = [c for c in json.loads((fixtures / "chatgpt_conversations.json").read_text(encoding="utf-8"))
+               if c.get("id") == "chatgpt-conv-0001"]
+    second = {**conv, "id": "chatgpt-conv-0002", "conversation_id": "chatgpt-conv-0002"}
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "conversations-001.json").write_text(json.dumps([second]), encoding="utf-8")
+    (folder / "conversations-000.json").write_text(json.dumps([conv]), encoding="utf-8")
+    (folder / "export_manifest.json").write_text("{}", encoding="utf-8")
+    return ["chatgpt-conv-0001", "chatgpt-conv-0002"]
+
+
+def test_chatgpt_reads_sharded_export_folder(fixtures: Path, tmp_path: Path):
+    expected = _write_shards(fixtures, tmp_path / "export")
+
+    assert [c.id for c in chatgpt.iter_conversations(tmp_path / "export")] == expected
+
+
+def test_chatgpt_reads_sharded_zip(fixtures: Path, tmp_path: Path):
+    expected = _write_shards(fixtures, tmp_path / "export")
+    archive = tmp_path / "export.zip"
+    with zipfile.ZipFile(archive, "w") as zf:
+        for file in (tmp_path / "export").iterdir():
+            zf.write(file, f"export/{file.name}")
+
+    assert [c.id for c in chatgpt.iter_conversations(archive)] == expected
+
+
+def test_chatgpt_folder_without_conversations(tmp_path: Path):
+    with pytest.raises(FileNotFoundError):
+        list(chatgpt.iter_conversations(tmp_path))
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Use sorted(). citeturn0search1turn0search2\nNext", "Use sorted().\nNext"),
+        ("Cited span. Done.", "Cited span. Done."),
+        ('See entity["software","Python",0].', "See Python."),
+        ('Try product_entity["turn0product1","Some Mouse"]', "Try Some Mouse"),
+        ("Docs: urlSorting HOWTOhttps://example.com/sort", "Docs: [Sorting HOWTO](https://example.com/sort)"),
+        ("Bad urltitlejavascript:x.", "Bad."),
+        ("entitynot json gone", " gone"),
+    ],
+)
+def test_chatgpt_clean_markers(text: str, expected: str):
+    assert chatgpt._clean_markers(text) == expected
 
 
 def test_claude_blocks_and_fallback_title(fixtures: Path):

@@ -39,7 +39,7 @@ def build_parser() -> argparse.ArgumentParser:
         "path",
         nargs="?",
         type=Path,
-        help="Export ZIP or conversations.json (chatgpt, claude); "
+        help="Export ZIP, export folder (chatgpt) or conversations.json (chatgpt, claude); "
         "overrides the configured session directory (claude-code, codex)",
     )
     imp.add_argument("--config", type=Path, default=Path("tkn.toml"), help="Config file (default: ./tkn.toml)")

@@ -12,11 +12,17 @@ TITLE_MAX_CHARS = 80
 
 # Characters forbidden in Windows file names or meaningful to Obsidian links, plus control chars.
 _FORBIDDEN = re.compile(r'[\\/:*?"<>|#^\[\]\x00-\x1f\x7f]')
+# Unicode noncharacters and lone surrogates, which Windows rejects in file names.
+_NONCHARACTERS = re.compile(
+    r"[\ufdd0-\ufdef\ud800-\udfff"
+    + "".join(rf"\U{p:04x}fffe\U{p:04x}ffff" for p in range(17))
+    + "]"
+)
 _WINDOWS_RESERVED = {"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)), *(f"LPT{i}" for i in range(1, 10))}
 
 
 def sanitize_title(title: str, max_chars: int = TITLE_MAX_CHARS) -> str:
-    cleaned = _FORBIDDEN.sub(" ", title)
+    cleaned = _NONCHARACTERS.sub(" ", _FORBIDDEN.sub(" ", title))
     cleaned = " ".join(cleaned.split())
     cleaned = cleaned[:max_chars]
     # Windows silently drops trailing dots and spaces.
