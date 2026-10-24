@@ -235,3 +235,5 @@ conversations.json
 /vault/
 /raw/
 /output/
+# Lists real note titles from the vault
+/docs/CLASSIFICATION_REVIEW.md
