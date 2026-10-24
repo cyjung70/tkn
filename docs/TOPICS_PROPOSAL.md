@@ -72,8 +72,8 @@ Owner decision 2026-10-24: English `production` means the production (operations
 - **Multiple topics per note are expected.** A Claude Code session about QuroHarness SQL analysis would get `Legacy-System-Analysis` + `Oracle-to-PostgreSQL-Migration` + `Claude-Code-and-AI-Assisted-Dev`.
 - **Raw notes stay untouched.** Topic assignment should live in `02_Knowledge` (index notes linking to `01_Original`), in line with OPEN_QUESTIONS Q6.
 
-## Open points for the owner
+## Owner decisions (2026-10-24)
 
-1. QuroERP and QuroHarness are out of scope for TKN 1.0 development. Their conversations are already in the vault, though (one QuroHarness Claude Code session was imported). Should topics 6–12 exist in `02_Knowledge` for classification only?
-2. Folder naming: English hyphenated names as above, or numbered (`01_AI-Conversation-Import`) like the vault's top-level folders?
-3. Should topics 2 and 1 be merged, or topics 7 and 8, to keep the list shorter at the start?
+1. Topics 6–12 are kept for classification, although QuroERP and QuroHarness are out of scope for TKN 1.0 development.
+2. Folder naming: English hyphenated names, no numbers.
+3. All 14 topics are kept as separate topics, plus `Unclassified`.
